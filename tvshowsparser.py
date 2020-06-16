@@ -3,21 +3,16 @@ import urllib
 
 
 class TvShowsParser:
-	def __init__(self, showInfo, withGevent):
+	def __init__(self, showInfo, withGevent, html = ''):
 		self.showInfo = showInfo
-		if withGevent:
-			self.getHtmlWithGevent()
-		else:
-			self.getHtmlWithoutGevent()
-
-	def getHtmlWithoutGevent(self):
-		req = urllib.request.Request(self.showInfo.url)
-		with urllib.request.urlopen(req) as response:
-			html = response.read()
+		if not withGevent:
+			html = self.getHtml()
 		self.htmlParser = BeautifulSoup(html, 'html.parser')
 
-	def getHtmlWithGevent(self):
-		return
+	def getHtml(self):
+		req = urllib.request.Request(self.showInfo.url)
+		with urllib.request.urlopen(req) as response:
+			return response.read()
 
 	def getRequiredShows(self):
 		shows = self.getAllShows()

@@ -4,10 +4,12 @@ from info import Info
 import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import Element, SubElement, tostring
 import datetime
-
+import urllib.request
+import gevent
 
 class ParserManager:
-	def __init__(self, xmlPath):
+	def __init__(self, xmlPath, useGevent = False):
+		self.useGevent = useGevent
 		self.rules = self.getRulesFromXml(xmlPath)
 
 	def getRulesFromXml(self, xmlPath):
@@ -30,14 +32,17 @@ class ParserManager:
 		return rules
 
 	def parse(self):
+		if self.useGevent:
+			htmls = self.getHtmls()
 		shows = {}
+		i = 0
 		for rule in self.rules:
-			parser = self.getParser(rule)
+			parser = self.getParser(rule, htmls[i] if self.useGevent else None)
 			shows[rule.url] = parser.getRequiredShows()
+			i += 1
 		self.printShows(shows)
 
-	def printShows(self, elements):
-				
+	def printShows(self, elements):		
 		root = ET.Element("root")
 		for key, value in elements.items():
 			page = ET.SubElement(root, 'page')
@@ -49,9 +54,21 @@ class ParserManager:
 		tree = ET.ElementTree(root)
 		tree.write("values.xml", encoding="UTF-8")
 			
-	def getParser(self, info):
+	def getParser(self, info, html):
 		uri = info.url.split('/')[2]
 		if uri == 'tv.meta.ua':
-			return MetaUaParser(info, False)
+			return MetaUaParser(info, self.useGevent, html)
 		if uri == 'tvset.tut.by':
-			return TvsetTutBy(info, False)
+			return TvsetTutBy(info, self.useGevent, html)
+
+	def worker(self, url):
+		req = urllib.request.Request(url)
+		with urllib.request.urlopen(req) as response:
+			return response.read()
+
+	def getHtmls(self):
+		urls = []
+		[urls.append(rule.url) for rule in self.rules]
+		jobs = [gevent.spawn(self.worker, url) for url in urls]
+		gevent.joinall(jobs, timeout = 5)
+		return [job.value for job in jobs]

@@ -1,13 +1,15 @@
-from tvshowsparser import TvShowsParser
 from parsermanager import ParserManager
-from parsers.metauaparser import MetaUaParser
-import datetime
-from optparse import OptionParser
 from config import USE_GEVENT
+import time
 
 def main():
-	if not USE_GEVENT:
-		manager = ParserManager('pages.xml')
-		manager.parse()
+	now = time.time()
+	manager = ParserManager('pages.xml', True)
+	manager.parse()
+	print(time.time() - now)
+	now = time.time()
+	manager = ParserManager('pages.xml', False)
+	manager.parse()
+	print(time.time() - now)
 
 main()

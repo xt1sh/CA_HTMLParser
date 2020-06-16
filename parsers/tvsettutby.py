@@ -1,6 +1,5 @@
 from tvshowsparser import TvShowsParser
 from show import Show
-import urllib.request
 from time import strptime
 import datetime
 
