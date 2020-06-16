@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pages>
+	<page>
+		<url>http://tv.meta.ua/index.php?period=all&amp;date=1592309417</url>
+		<startTime>9:00</startTime>
+		<endTime>15:00</endTime>
+	</page>
+	<page>
+		<url>https://tvset.tut.by/category/0/16-06-2020/filter/now/?genre%5B0%5D=2</url>
+		<startTime>14:00</startTime>
+		<endTime>16:00</endTime>
+	</page>
+</pages>
