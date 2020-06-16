@@ -30,20 +30,24 @@ class ParserManager:
 		return rules
 
 	def parse(self):
-		shows = []
+		shows = {}
 		for rule in self.rules:
 			parser = self.getParser(rule)
-			shows.append({rule.url: parser.getRequiredShows()})
+			shows[rule.url] = parser.getRequiredShows()
 		self.printShows(shows)
 
 	def printShows(self, elements):
-		shows = Element('shows')
-		for el in elements:
-			page = SubElement(shows, 'page')
-			url = SubElement(page, 'url')
-			url.text = el
-			for show in el:
-				show.name = show.name.replace('\n', '').replace('\r', '')
+				
+		root = ET.Element("root")
+		for key, value in elements.items():
+			page = ET.SubElement(root, 'page')
+			page.text = str(key)
+			for show in value:
+				sh = ET.SubElement(page, "show")
+				ET.SubElement(sh, "name").text = str(show.name.replace('\n', '').replace('\r', ''))
+				ET.SubElement(sh, "starttime").text = str(show.startTime)
+		tree = ET.ElementTree(root)
+		tree.write("values.xml", encoding="UTF-8")
 			
 	def getParser(self, info):
 		uri = info.url.split('/')[2]
